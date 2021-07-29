@@ -96,18 +96,18 @@ func (iksp *IksVpcBlockProvider) OpenSession(ctx context.Context, contextCredent
 	iksp.iksBlockProvider.ClientProvider = riaas.IKSRegionalAPIClientProvider{}
 
 	ctxLogger.Info("Its ISK dual session. Getttng IAM token for  IKS block session")
-	//iksContextCredentials, err := ccf.ForIAMAccessToken(iksp.iksBlockProvider.Config.VPCConfig.APIKey, ctxLogger)
-	if true {
+	iksContextCredentials, err := ccf.ForIAMAccessToken(iksp.iksBlockProvider.Config.VPCConfig.APIKey, ctxLogger)
+	if err != nil {
 		ctxLogger.Warn("Error occurred while generating IAM token for IKS. But continue with VPC session alone. \n Volume Mount operation will fail but volume provisioning will work", zap.Error(err))
 		session = &vpcprovider.VPCSession{
 			Logger: ctxLogger,
 		} // Empty session to avoid Nil references.
-	} /* else {
+	} else {
 		session, err = iksp.iksBlockProvider.OpenSession(ctx, iksContextCredentials, ctxLogger)
 		if err != nil {
 			ctxLogger.Error("Error occurred while opening IKSSession", zap.Error(err))
 		}
-	} */
+	}
 
 	iksSession, ok := session.(*vpcprovider.VPCSession)
 	if ok && iksSession.Apiclient != nil {
