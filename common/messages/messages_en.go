@@ -219,12 +219,12 @@ var messagesEn = map[string]util.Message{
 		RC:          400,
 		Action:      "Please verify that the start volume ID is correct and whether you have access to the volume ID.",
 	},
-	"IKSSessionNotFound": {
-		Code:        "IKSSessionNotFound",
-		Description: "The IKS session was not found due to error while generating IAM token for IKS.The requested operation will be retried.",
+	"InvalidContainerServiceSession": {
+		Code:        "InvalidContainerServiceSession",
+		Description: "The Container Service Session was not found due to error while generating IAM token for Container Service.",
 		Type:        util.InvalidRequest,
 		RC:          500,
-		Action:      "Kuberentes will retry the attach timeout.If the retries are exhausted please restart the CSI controller pod",
+		Action:      "Please retry again after some time.",
 	},
 }
 

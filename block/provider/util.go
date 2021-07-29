@@ -295,12 +295,11 @@ func roundUpSize(volumeSizeBytes int64, allocationUnitBytes int64) int64 {
 	return (volumeSizeBytes + allocationUnitBytes - 1) / allocationUnitBytes
 }
 
-// validateIKSSession check if IKS session is valid
-func validateIKSSession(vpcs *VPCSession) (err error) {
+// isValidContainerServiceSession check if Container Service Session is valid
+func isValidContainerServiceSession(vpcs *VPCSession) (err error) {
+	//If Container Service Session contains nil configuration it is invalid session
 	if vpcs.Config == nil {
-		vpcs.Logger.Error("IKS Session is invalid contains nil configuration.Please check if IAM token exchange request for IKS failed.")
-		userErr := userError.GetUserError(string(userError.IKSSessionNotFound), nil)
-		return userErr
+		return userError.GetUserError(string(userError.InvalidContainerServiceSession), nil)
 	}
 	return nil
 }
