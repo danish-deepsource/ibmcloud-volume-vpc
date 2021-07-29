@@ -43,6 +43,13 @@ func (vpcs *VPCSession) AttachVolume(volumeAttachmentRequest provider.VolumeAtta
 	defer vpcs.Logger.Debug("Exit from AttachVolume method...")
 	defer metrics.UpdateDurationFromStart(vpcs.Logger, "AttachVolume", time.Now())
 	var err error
+
+	//check if IKS session is valid
+	err = validateIKSSession(vpcs)
+	if err != nil {
+		return nil, err
+	}
+
 	vpcs.Logger.Info("Validating basic inputs for Attach method...", zap.Reflect("volumeAttachRequest", volumeAttachmentRequest))
 	err = vpcs.validateAttachVolumeRequest(volumeAttachmentRequest)
 	if err != nil {

@@ -35,6 +35,13 @@ func (vpcs *VPCSession) DetachVolume(volumeAttachmentTemplate provider.VolumeAtt
 	defer vpcs.Logger.Debug("Exit from DetachVolume method...")
 	defer metrics.UpdateDurationFromStart(vpcs.Logger, "DetachVolume", time.Now())
 	var err error
+
+	//check if IKS session is valid
+	err = validateIKSSession(vpcs)
+	if err != nil {
+		return nil, err
+	}
+
 	vpcs.Logger.Info("Validating basic inputs for detach method...", zap.Reflect("volumeAttachmentTemplate", volumeAttachmentTemplate))
 	err = vpcs.validateAttachVolumeRequest(volumeAttachmentTemplate)
 	if err != nil {

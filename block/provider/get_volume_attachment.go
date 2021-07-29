@@ -31,6 +31,13 @@ func (vpcs *VPCSession) GetVolumeAttachment(volumeAttachmentRequest provider.Vol
 	vpcs.Logger.Debug("Entry of GetVolumeAttachment method...", zap.Reflect("volumeAttachmentRequest", volumeAttachmentRequest))
 	defer vpcs.Logger.Debug("Exit from GetVolumeAttachment method...")
 	var err error
+
+	//check if IKS session is valid
+	err = validateIKSSession(vpcs)
+	if err != nil {
+		return nil, err
+	}
+
 	vpcs.Logger.Info("Validating basic inputs for GetVolumeAttachment method...", zap.Reflect("volumeAttachRequest", volumeAttachmentRequest))
 	err = vpcs.validateAttachVolumeRequest(volumeAttachmentRequest)
 	if err != nil {

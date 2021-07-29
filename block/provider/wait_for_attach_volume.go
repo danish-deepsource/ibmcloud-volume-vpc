@@ -31,9 +31,16 @@ func (vpcs *VPCSession) WaitForAttachVolume(volumeAttachmentTemplate provider.Vo
 	vpcs.Logger.Debug("Entry of WaitForAttachVolume method...")
 	defer vpcs.Logger.Debug("Exit from WaitForAttachVolume method...")
 	defer metrics.UpdateDurationFromStart(vpcs.Logger, "WaitForAttachVolume", time.Now())
+	var err error
+
+	//check if IKS session is valid
+	err = validateIKSSession(vpcs)
+	if err != nil {
+		return nil, err
+	}
 
 	vpcs.Logger.Info("Validating basic inputs for WaitForAttachVolume method...", zap.Reflect("volumeAttachmentTemplate", volumeAttachmentTemplate))
-	err := vpcs.validateAttachVolumeRequest(volumeAttachmentTemplate)
+	err = vpcs.validateAttachVolumeRequest(volumeAttachmentTemplate)
 	if err != nil {
 		return nil, err
 	}

@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/IBM/ibmcloud-volume-interface/lib/provider"
+	userError "github.com/IBM/ibmcloud-volume-vpc/common/messages"
 	"github.com/IBM/ibmcloud-volume-vpc/common/vpcclient/models"
 	"go.uber.org/zap"
 )
@@ -292,4 +293,14 @@ func SetRetryParameters(maxAttempts int, maxGap int) {
 
 func roundUpSize(volumeSizeBytes int64, allocationUnitBytes int64) int64 {
 	return (volumeSizeBytes + allocationUnitBytes - 1) / allocationUnitBytes
+}
+
+// validateIKSSession check if IKS session is valid
+func validateIKSSession(vpcs *VPCSession) (err error) {
+	if vpcs.Config == nil {
+		vpcs.Logger.Error("IKS Session is invalid contains nil configuration.Please check if IAM token exchange request for IKS failed.")
+		userErr := userError.GetUserError(string(userError.IKSSessionNotFound), nil)
+		return userErr
+	}
+	return nil
 }
