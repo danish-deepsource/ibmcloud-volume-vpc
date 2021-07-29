@@ -222,7 +222,7 @@ var messagesEn = map[string]util.Message{
 	"InvalidContainerServiceSession": {
 		Code:        "InvalidContainerServiceSession",
 		Description: "The Container Service Session was not found due to error while generating IAM token for Container Service.",
-		Type:        util.InvalidRequest,
+		Type:        util.RetrivalFailed,
 		RC:          500,
 		Action:      "Please retry again after some time.",
 	},
