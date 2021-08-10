@@ -46,7 +46,6 @@ func (vpcs *VPCSession) AttachVolume(volumeAttachmentRequest provider.VolumeAtta
 
 	//check if ServiceSession is valid
 	if err = isValidServiceSession(vpcs); err != nil {
-		vpcs.Logger.Warn("IKS Session is not valid.")
 		return nil, err
 	}
 

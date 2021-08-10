@@ -299,6 +299,7 @@ func roundUpSize(volumeSizeBytes int64, allocationUnitBytes int64) int64 {
 func isValidServiceSession(vpcs *VPCSession) (err error) {
 	//If VPC session contains valid SessionError then there is some session related issue
 	if vpcs.SessionError != nil {
+		vpcs.Logger.Warn("Provider session is not valid.")
 		return userError.GetUserError(string(userError.InvalidServiceSession), vpcs.SessionError)
 	}
 
