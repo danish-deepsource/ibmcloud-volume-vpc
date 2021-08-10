@@ -219,9 +219,9 @@ var messagesEn = map[string]util.Message{
 		RC:          400,
 		Action:      "Please verify that the start volume ID is correct and whether you have access to the volume ID.",
 	},
-	"InvalidContainerServiceSession": {
-		Code:        "InvalidContainerServiceSession",
-		Description: "The Container Service Session was not found due to error while generating IAM token for Container Service.",
+	"InvalidServiceSession": {
+		Code:        "InvalidServiceSession",
+		Description: "The Service Session was not found due to error while generating IAM token for Sesssion Service.",
 		Type:        util.RetrivalFailed,
 		RC:          500,
 		Action:      "Please retry again after some time.",

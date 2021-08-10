@@ -100,7 +100,8 @@ func (iksp *IksVpcBlockProvider) OpenSession(ctx context.Context, contextCredent
 	if err != nil {
 		ctxLogger.Warn("Error occurred while generating IAM token for IKS. But continue with VPC session alone. \n Volume Mount operation will fail but volume provisioning will work", zap.Error(err))
 		session = &vpcprovider.VPCSession{
-			Logger: ctxLogger,
+			Logger:       ctxLogger,
+			SessionError: err,
 		} // Empty session to avoid Nil references.
 	} else {
 		session, err = iksp.iksBlockProvider.OpenSession(ctx, iksContextCredentials, ctxLogger)

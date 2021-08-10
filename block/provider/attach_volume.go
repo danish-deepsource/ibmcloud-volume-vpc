@@ -44,8 +44,8 @@ func (vpcs *VPCSession) AttachVolume(volumeAttachmentRequest provider.VolumeAtta
 	defer metrics.UpdateDurationFromStart(vpcs.Logger, "AttachVolume", time.Now())
 	var err error
 
-	//check if ContainerServiceSession is valid
-	if err = isValidContainerServiceSession(vpcs); err != nil {
+	//check if ServiceSession is valid
+	if err = isValidServiceSession(vpcs); err != nil {
 		vpcs.Logger.Warn("IKS Session is not valid.")
 		return nil, err
 	}

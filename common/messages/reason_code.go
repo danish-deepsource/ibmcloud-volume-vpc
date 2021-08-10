@@ -30,6 +30,6 @@ const (
 	VolumeAttachTimedOut = "VolumeAttachTimedOut"
 	//VolumeDetachTimedOut indicates the volume detach is not completed within the specified time out
 	VolumeDetachTimedOut = "VolumeDetachTimedOut"
-	//InvalidContainerServiceSession indicates that there is some issue with IAM token exchange request for container service
-	InvalidContainerServiceSession = "InvalidContainerServiceSession"
+	//InvalidServiceSession indicates that there is some issue with IAM token exchange request for container service
+	InvalidServiceSession = "InvalidServiceSession"
 )

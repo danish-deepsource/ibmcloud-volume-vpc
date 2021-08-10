@@ -295,11 +295,12 @@ func roundUpSize(volumeSizeBytes int64, allocationUnitBytes int64) int64 {
 	return (volumeSizeBytes + allocationUnitBytes - 1) / allocationUnitBytes
 }
 
-// isValidContainerServiceSession check if Container Service Session is valid
-func isValidContainerServiceSession(vpcs *VPCSession) (err error) {
-	//If Container Service Session contains nil configuration it is invalid session
-	if vpcs.Config == nil {
-		return userError.GetUserError(string(userError.InvalidContainerServiceSession), nil)
+// isValidServiceSession check if Service Session is valid
+func isValidServiceSession(vpcs *VPCSession) (err error) {
+	//If VPC session contains valid SessionError then there is some session related issue
+	if vpcs.SessionError != nil {
+		return userError.GetUserError(string(userError.InvalidServiceSession), vpcs.SessionError)
 	}
+
 	return nil
 }

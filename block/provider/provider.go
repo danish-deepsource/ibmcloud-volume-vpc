@@ -236,6 +236,7 @@ func (vpcp *VPCBlockProvider) OpenSession(ctx context.Context, contextCredential
 		APIClientVolAttachMgr: client.VolumeAttachService(),
 		Logger:                ctxLogger,
 		APIRetry:              NewFlexyRetryDefault(),
+		SessionError:          nil,
 	}
 	return vpcSession, nil
 }

@@ -34,8 +34,8 @@ func (vpcs *VPCSession) WaitForDetachVolume(volumeAttachmentTemplate provider.Vo
 	defer metrics.UpdateDurationFromStart(vpcs.Logger, "WaitForDetachVolume", time.Now())
 	var err error
 
-	//check if ContainerServiceSession is valid
-	if err = isValidContainerServiceSession(vpcs); err != nil {
+	//check if ServiceSession is valid
+	if err = isValidServiceSession(vpcs); err != nil {
 		return err
 	}
 

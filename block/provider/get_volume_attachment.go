@@ -32,8 +32,8 @@ func (vpcs *VPCSession) GetVolumeAttachment(volumeAttachmentRequest provider.Vol
 	defer vpcs.Logger.Debug("Exit from GetVolumeAttachment method...")
 	var err error
 
-	//check if ContainerServiceSession is valid
-	if err = isValidContainerServiceSession(vpcs); err != nil {
+	//check if ServiceSession is valid
+	if err = isValidServiceSession(vpcs); err != nil {
 		return nil, err
 	}
 
