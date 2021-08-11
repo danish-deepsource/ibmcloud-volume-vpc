@@ -358,6 +358,32 @@ func GetTestOpenSession(t *testing.T, logger *zap.Logger) (sessn *VPCSession, uc
 	return
 }
 
+func GetTestOpenInvalidSession(t *testing.T, logger *zap.Logger) (sessn *VPCSession, uc, sc *fakes.RegionalAPI, err error) {
+	vpcp, err := GetTestProvider(t, logger)
+
+	m := http.NewServeMux()
+	s := httptest.NewServer(m)
+	assert.NotNil(t, s)
+
+	vpcp.httpClient = http.DefaultClient
+
+	// Inject a fake RIAAS API client
+	cp := &fakes.RegionalAPIClientProvider{}
+	uc = &fakes.RegionalAPI{}
+	cp.NewReturnsOnCall(0, uc, nil)
+	sc = &fakes.RegionalAPI{}
+	cp.NewReturnsOnCall(1, sc, nil)
+	vpcp.ClientProvider = cp
+
+	sessn = &VPCSession{
+		Logger: logger,
+		SessionError: util.NewError("ErrorUnclassified",
+			"IAM token exchange request failed", nil),
+	}
+
+	return
+}
+
 func TestGetTestOpenSession(t *testing.T) {
 	//var err error
 	logger, teardown := GetTestLogger(t)
