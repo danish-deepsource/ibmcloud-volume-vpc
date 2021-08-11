@@ -40,11 +40,11 @@ func TestAttachVolume(t *testing.T) {
 	)
 
 	testCases := []struct {
-		testCaseName                     string
-		providerVolumeAttachmentRequest  provider.VolumeAttachmentRequest
-		baseVolumeAttachmentRequest      *models.VolumeAttachment
-		providerVolumeAttachmentResponse provider.VolumeAttachmentResponse
-		baseVolumeAttachmentResponse     *models.VolumeAttachment
+		testCaseName                      string
+		providerVolumeAttachmentRequest   provider.VolumeAttachmentRequest
+		baseVolumeAttachmentsListResponse *models.VolumeAttachmentList
+		providerVolumeAttachmentResponse  provider.VolumeAttachmentResponse
+		baseVolumeAttachmentResponse      *models.VolumeAttachment
 
 		setup func(providerVolume *provider.Volume)
 
@@ -59,10 +59,113 @@ func TestAttachVolume(t *testing.T) {
 			providerVolumeAttachmentRequest: provider.VolumeAttachmentRequest{
 				VolumeID: "volume-id1",
 			},
+
+			verify: func(t *testing.T, volumeAttachmentResponse *provider.VolumeAttachmentResponse, err error) {
+				assert.Nil(t, volumeAttachmentResponse)
+				assert.NotNil(t, err)
+			},
 		}, {
 			testCaseName: "Volume ID is nil",
 			providerVolumeAttachmentRequest: provider.VolumeAttachmentRequest{
 				InstanceID: "instance-id1",
+			},
+
+			verify: func(t *testing.T, volumeAttachmentResponse *provider.VolumeAttachmentResponse, err error) {
+				assert.Nil(t, volumeAttachmentResponse)
+				assert.NotNil(t, err)
+			},
+		},
+		{
+			testCaseName: "Volume Attachment exist for the Volume ID",
+			providerVolumeAttachmentRequest: provider.VolumeAttachmentRequest{
+				VolumeID:   "volume-id1",
+				InstanceID: "instance-id1",
+			},
+
+			baseVolumeAttachmentResponse: &models.VolumeAttachment{
+				ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
+				Href:       "",
+				Name:       "test volume name",
+				Status:     "stable",
+				Type:       "",
+				InstanceID: new(string),
+				ClusterID:  new(string),
+				Device:     &models.Device{},
+				Volume:     &models.Volume{ID: "volume-id1"},
+			},
+
+			baseVolumeAttachmentsListResponse: &models.VolumeAttachmentList{
+				VolumeAttachments: []models.VolumeAttachment{{
+					ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
+					Href:       "",
+					Name:       "test volume name",
+					Status:     "stable",
+					Type:       "",
+					InstanceID: new(string),
+					ClusterID:  new(string),
+					Device:     &models.Device{},
+					Volume:     &models.Volume{ID: "volume-id1"},
+				}},
+			},
+
+			verify: func(t *testing.T, volumeAttachmentResponse *provider.VolumeAttachmentResponse, err error) {
+				assert.NotNil(t, volumeAttachmentResponse)
+				assert.Nil(t, err)
+			},
+		},
+		{
+			testCaseName: "Volume Attachment does not exist for the Volume ID- List Vol Attachement Fails",
+			providerVolumeAttachmentRequest: provider.VolumeAttachmentRequest{
+				VolumeID:   "volume-id1",
+				InstanceID: "instance-id1",
+			},
+
+			baseVolumeAttachmentResponse:      nil,
+			baseVolumeAttachmentsListResponse: nil,
+
+			expectedErr:        "{Code:ErrorUnclassified, Type:VolumeAttachFailed, Description:Failed to Attach volume for  'volume-id1' volume ID with 'instance-id1' Instance ID.",
+			expectedReasonCode: "ErrorUnclassified",
+
+			verify: func(t *testing.T, volumeAttachmentResponse *provider.VolumeAttachmentResponse, err error) {
+				assert.Nil(t, volumeAttachmentResponse)
+				assert.NotNil(t, err)
+			},
+		}, {
+			testCaseName: "Volume Attachment does not exist for the Volume ID",
+			providerVolumeAttachmentRequest: provider.VolumeAttachmentRequest{
+				VolumeID:   "volume-id1",
+				InstanceID: "instance-id1",
+			},
+
+			baseVolumeAttachmentResponse: &models.VolumeAttachment{
+				ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
+				Href:       "",
+				Name:       "test volume name",
+				Status:     "stable",
+				Type:       "",
+				InstanceID: new(string),
+				ClusterID:  new(string),
+				Device:     &models.Device{},
+				Volume:     &models.Volume{ID: "volume-id1"},
+			},
+
+			baseVolumeAttachmentsListResponse: &models.VolumeAttachmentList{
+				VolumeAttachments: []models.VolumeAttachment{{
+					ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
+					Href:       "",
+					Name:       "test volume name",
+					Status:     "stable",
+					Type:       "",
+					InstanceID: new(string),
+					ClusterID:  new(string),
+					Device:     &models.Device{},
+					Volume:     &models.Volume{ID: "volume-id123"},
+				}},
+			},
+
+			verify: func(t *testing.T, volumeAttachmentResponse *provider.VolumeAttachmentResponse, err error) {
+				assert.NotNil(t, volumeAttachmentResponse)
+				assert.Nil(t, err)
 			},
 		},
 	}
@@ -76,13 +179,18 @@ func TestAttachVolume(t *testing.T) {
 			assert.Nil(t, err)
 
 			volumeAttachService = &volumeAttachServiceFakes.VolumeAttachService{}
+			vpcs.APIClientVolAttachMgr = volumeAttachService
 			assert.NotNil(t, volumeAttachService)
 			uc.VolumeAttachServiceReturns(volumeAttachService)
 
 			if testcase.expectedErr != "" {
-				volumeAttachService.AttachVolumeReturns(testcase.baseVolumeAttachmentRequest, errors.New(testcase.expectedReasonCode))
+				volumeAttachService.AttachVolumeReturns(testcase.baseVolumeAttachmentResponse, errors.New(testcase.expectedReasonCode))
+				volumeAttachService.ListVolumeAttachmentsReturns(testcase.baseVolumeAttachmentsListResponse, errors.New(testcase.expectedReasonCode))
+				volumeAttachService.GetVolumeAttachmentReturns(testcase.baseVolumeAttachmentResponse, errors.New(testcase.expectedReasonCode))
 			} else {
-				volumeAttachService.AttachVolumeReturns(testcase.baseVolumeAttachmentRequest, nil)
+				volumeAttachService.AttachVolumeReturns(testcase.baseVolumeAttachmentResponse, nil)
+				volumeAttachService.ListVolumeAttachmentsReturns(testcase.baseVolumeAttachmentsListResponse, nil)
+				volumeAttachService.GetVolumeAttachmentReturns(testcase.baseVolumeAttachmentResponse, nil)
 			}
 			volumeAttachment, err := vpcs.AttachVolume(testcase.providerVolumeAttachmentRequest)
 			logger.Info("Volume attachment details", zap.Reflect("VolumeAttachmentResponse", volumeAttachment))
@@ -144,6 +252,7 @@ func TestAttachVolumeForInvalidSession(t *testing.T) {
 			assert.Nil(t, err)
 
 			volumeAttachService = &volumeAttachServiceFakes.VolumeAttachService{}
+			vpcs.APIClientVolAttachMgr = volumeAttachService
 			assert.NotNil(t, volumeAttachService)
 			uc.VolumeAttachServiceReturns(volumeAttachService)
 
