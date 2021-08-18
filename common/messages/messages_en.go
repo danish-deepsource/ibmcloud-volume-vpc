@@ -221,7 +221,7 @@ var messagesEn = map[string]util.Message{
 	},
 	"InvalidServiceSession": {
 		Code:        "InvalidServiceSession",
-		Description: "The Service Session was not found due to error while generating IAM token for Sesssion Service.",
+		Description: "The Service Session was not found due to error while generating IAM token.",
 		Type:        util.RetrivalFailed,
 		RC:          500,
 		Action:      "Please retry again after some time.",

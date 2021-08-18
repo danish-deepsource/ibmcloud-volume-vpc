@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 IBM Corp.
+ * Copyright 2021 IBM Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestWaitForAttachVolume(t *testing.T) {
+func TestWaitForDetachVolume(t *testing.T) {
 	//var err error
 	logger, teardown := GetTestLogger(t)
 	defer teardown()
@@ -43,12 +43,8 @@ func TestWaitForAttachVolume(t *testing.T) {
 		testCaseName                      string
 		providerVolumeAttachmentRequest   provider.VolumeAttachmentRequest
 		baseVolumeAttachmentsListResponse *models.VolumeAttachmentList
-		providerVolumeAttachmentResponse  provider.VolumeAttachmentResponse
 		baseVolumeAttachmentResponse      *models.VolumeAttachment
 
-		setup func(providerVolume *provider.Volume)
-
-		skipErrTest        bool
 		expectedErr        string
 		expectedReasonCode string
 
@@ -162,13 +158,17 @@ func TestWaitForAttachVolume(t *testing.T) {
 			assert.NotNil(t, volumeAttachService)
 			uc.VolumeAttachServiceReturns(volumeAttachService)
 
+			var errorResp error
+
 			if testcase.expectedErr != "" {
-				volumeAttachService.ListVolumeAttachmentsReturns(testcase.baseVolumeAttachmentsListResponse, errors.New(testcase.expectedReasonCode))
-				volumeAttachService.GetVolumeAttachmentReturns(testcase.baseVolumeAttachmentResponse, errors.New(testcase.expectedReasonCode))
+				errorResp = errors.New(testcase.expectedReasonCode)
 			} else {
-				volumeAttachService.ListVolumeAttachmentsReturns(testcase.baseVolumeAttachmentsListResponse, nil)
-				volumeAttachService.GetVolumeAttachmentReturns(testcase.baseVolumeAttachmentResponse, nil)
+				errorResp = nil
 			}
+
+			volumeAttachService.ListVolumeAttachmentsReturns(testcase.baseVolumeAttachmentsListResponse, errorResp)
+			volumeAttachService.GetVolumeAttachmentReturns(testcase.baseVolumeAttachmentResponse, errorResp)
+
 			err = vpcs.WaitForDetachVolume(testcase.providerVolumeAttachmentRequest)
 
 			if testcase.expectedErr != "" {
@@ -184,74 +184,18 @@ func TestWaitForAttachVolume(t *testing.T) {
 	}
 }
 
-func TestWaitForAttachVolumeForInvalidSession(t *testing.T) {
-	//var err error
+func TestWaitForDetachVolumeForInvalidSession(t *testing.T) {
 	logger, teardown := GetTestLogger(t)
 	defer teardown()
-
-	var (
-		volumeAttachService *volumeAttachServiceFakes.VolumeAttachService
-	)
-
-	testCases := []struct {
-		testCaseName                      string
-		providerVolumeAttachmentRequest   provider.VolumeAttachmentRequest
-		baseVolumeAttachmentRequest       *models.VolumeAttachment
-		providerVolumeAttachmentResponse  provider.VolumeAttachmentResponse
-		baseVolumeAttachmentResponse      *models.VolumeAttachment
-		baseVolumeAttachmentsListResponse *models.VolumeAttachmentList
-
-		setup func(providerVolume *provider.Volume)
-
-		skipErrTest        bool
-		expectedErr        string
-		expectedReasonCode string
-
-		verify func(t *testing.T, err error)
-	}{
-		{
-			testCaseName: "Instance ID is nil",
-			providerVolumeAttachmentRequest: provider.VolumeAttachmentRequest{
-				VolumeID: "volume-id1",
-			},
-
-			expectedErr:        "{Code:ErrorUnclassified, Description:'IAM token exchange request failed",
-			expectedReasonCode: "ErrorUnclassified",
-		},
+	vpcs, uc, sc, err := GetTestOpenInvalidSession(t, logger)
+	assert.NotNil(t, vpcs)
+	assert.NotNil(t, uc)
+	assert.NotNil(t, sc)
+	assert.Nil(t, err)
+	volumeAttachRequest := provider.VolumeAttachmentRequest{
+		VolumeID: "vol-1",
 	}
 
-	for _, testcase := range testCases {
-		t.Run(testcase.testCaseName, func(t *testing.T) {
-			vpcs, uc, sc, err := GetTestOpenInvalidSession(t, logger)
-			assert.NotNil(t, vpcs)
-			assert.NotNil(t, uc)
-			assert.NotNil(t, sc)
-			assert.Nil(t, err)
-
-			volumeAttachService = &volumeAttachServiceFakes.VolumeAttachService{}
-			vpcs.APIClientVolAttachMgr = volumeAttachService
-			assert.NotNil(t, volumeAttachService)
-			uc.VolumeAttachServiceReturns(volumeAttachService)
-
-			if testcase.expectedErr != "" {
-				volumeAttachService.ListVolumeAttachmentsReturns(testcase.baseVolumeAttachmentsListResponse, errors.New(testcase.expectedReasonCode))
-				volumeAttachService.GetVolumeAttachmentReturns(testcase.baseVolumeAttachmentResponse, errors.New(testcase.expectedReasonCode))
-			} else {
-				volumeAttachService.ListVolumeAttachmentsReturns(testcase.baseVolumeAttachmentsListResponse, nil)
-				volumeAttachService.GetVolumeAttachmentReturns(testcase.baseVolumeAttachmentResponse, nil)
-			}
-
-			err = vpcs.WaitForDetachVolume(testcase.providerVolumeAttachmentRequest)
-
-			if testcase.expectedErr != "" {
-				assert.NotNil(t, err)
-				logger.Info("Error details", zap.Reflect("Error details", err.Error()))
-				assert.Equal(t, reasoncode.ReasonCode(testcase.expectedReasonCode), util.ErrorReasonCode(err))
-			}
-
-			if testcase.verify != nil {
-				testcase.verify(t, err)
-			}
-		})
-	}
+	err = vpcs.WaitForDetachVolume(volumeAttachRequest)
+	assert.NotNil(t, err)
 }
