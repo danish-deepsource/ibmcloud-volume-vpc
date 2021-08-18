@@ -227,6 +227,11 @@ func TestDetachVolume(t *testing.T) {
 			volumeAttachService.GetVolumeAttachmentReturns(testcase.baseVolumeAttachmentResponse, nil)
 
 			httpResponse, err := vpcs.DetachVolume(testcase.providerVolumeAttachmentRequest)
+
+			defer func() {
+				_ = httpResponse.Body.Close()
+			}()
+
 			logger.Info("Volume attachment details", zap.Reflect("VolumeDetachResponse", httpResponse))
 
 			if testcase.expectedErr != "" {
@@ -296,8 +301,14 @@ func TestDetachVolumeForInvalidSession(t *testing.T) {
 			} else {
 				volumeAttachService.DetachVolumeReturns(testcase.httpResponse, nil)
 			}
+
 			httpResponse, err := vpcs.DetachVolume(testcase.providerVolumeAttachmentRequest)
-			logger.Info("Volume attachment details", zap.Reflect("VolumeDetachResponse", httpResponse))
+
+			defer func() {
+				_ = httpResponse.Body.Close()
+			}()
+
+			defer logger.Info("Volume attachment details", zap.Reflect("VolumeDetachResponse", httpResponse))
 
 			if testcase.expectedErr != "" {
 				assert.NotNil(t, err)
