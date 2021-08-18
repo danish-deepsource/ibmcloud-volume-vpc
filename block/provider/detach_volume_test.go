@@ -228,9 +228,13 @@ func TestDetachVolume(t *testing.T) {
 
 			httpResponse, err := vpcs.DetachVolume(testcase.providerVolumeAttachmentRequest)
 
-			defer func() {
-				_ = httpResponse.Body.Close()
-			}()
+			if err != nil && httpResponse != nil { //Handle error }
+				defer func() {
+					if err := httpResponse.Body.Close(); err != nil {
+						logger.Info("Error details", zap.Reflect("Error details", err.Error()))
+					}
+				}()
+			}
 
 			logger.Info("Volume attachment details", zap.Reflect("VolumeDetachResponse", httpResponse))
 
@@ -304,9 +308,13 @@ func TestDetachVolumeForInvalidSession(t *testing.T) {
 
 			httpResponse, err := vpcs.DetachVolume(testcase.providerVolumeAttachmentRequest)
 
-			defer func() {
-				_ = httpResponse.Body.Close()
-			}()
+			if err != nil && httpResponse != nil { //Handle error }
+				defer func() {
+					if err := httpResponse.Body.Close(); err != nil {
+						logger.Info("Error details", zap.Reflect("Error details", err.Error()))
+					}
+				}()
+			}
 
 			defer logger.Info("Volume attachment details", zap.Reflect("VolumeDetachResponse", httpResponse))
 
