@@ -78,28 +78,18 @@ func TestAttachVolume(t *testing.T) {
 			},
 
 			baseVolumeAttachmentResponse: &models.VolumeAttachment{
-				ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-				Href:       "",
-				Name:       "test volume name",
-				Status:     "stable",
-				Type:       "",
-				InstanceID: new(string),
-				ClusterID:  new(string),
-				Device:     &models.Device{},
-				Volume:     &models.Volume{ID: "volume-id1"},
+				ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+				Name:   "test volume name",
+				Status: "stable",
+				Volume: &models.Volume{ID: "volume-id1"},
 			},
 
 			baseVolumeAttachmentsListResponse: &models.VolumeAttachmentList{
 				VolumeAttachments: []models.VolumeAttachment{{
-					ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-					Href:       "",
-					Name:       "test volume name",
-					Status:     "stable",
-					Type:       "",
-					InstanceID: new(string),
-					ClusterID:  new(string),
-					Device:     &models.Device{},
-					Volume:     &models.Volume{ID: "volume-id1"},
+					ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+					Name:   "test volume name",
+					Status: "stable",
+					Volume: &models.Volume{ID: "volume-id1"},
 				}},
 			},
 
@@ -109,7 +99,7 @@ func TestAttachVolume(t *testing.T) {
 			},
 		},
 		{
-			testCaseName: "Volume Attachment does not exist for the Volume ID- List Vol Attachement Fails",
+			testCaseName: "Failure case -- Volume Attachment fails",
 			providerVolumeAttachmentRequest: provider.VolumeAttachmentRequest{
 				VolumeID:   "volume-id1",
 				InstanceID: "instance-id1",
@@ -133,28 +123,18 @@ func TestAttachVolume(t *testing.T) {
 			},
 
 			baseVolumeAttachmentResponse: &models.VolumeAttachment{
-				ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-				Href:       "",
-				Name:       "test volume name",
-				Status:     "stable",
-				Type:       "",
-				InstanceID: new(string),
-				ClusterID:  new(string),
-				Device:     &models.Device{},
-				Volume:     &models.Volume{ID: "volume-id1"},
+				ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+				Name:   "test volume name",
+				Status: "stable",
+				Volume: &models.Volume{ID: "volume-id1"},
 			},
 
 			baseVolumeAttachmentsListResponse: &models.VolumeAttachmentList{
 				VolumeAttachments: []models.VolumeAttachment{{
-					ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-					Href:       "",
-					Name:       "test volume name",
-					Status:     "stable",
-					Type:       "",
-					InstanceID: new(string),
-					ClusterID:  new(string),
-					Device:     &models.Device{},
-					Volume:     &models.Volume{ID: "volume-id123"},
+					ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+					Name:   "test volume name",
+					Status: "stable",
+					Volume: &models.Volume{ID: "volume-id123"},
 				}},
 			},
 
@@ -213,10 +193,12 @@ func TestAttachVolumeForInvalidSession(t *testing.T) {
 	assert.NotNil(t, uc)
 	assert.NotNil(t, sc)
 	assert.Nil(t, err)
+	expectedError := "{Code:InvalidServiceSession, Type:RetrivalFailed, Description:The Service Session was not found due to error while generating IAM token., BackendError:IAM token exchange request failed, RC:500}"
 	volumeAttachRequest := provider.VolumeAttachmentRequest{
 		VolumeID: "vol-1",
 	}
 
 	_, err = vpcs.AttachVolume(volumeAttachRequest)
 	assert.NotNil(t, err)
+	assert.Equal(t, expectedError, err.Error())
 }

@@ -84,28 +84,18 @@ func TestDetachVolume(t *testing.T) {
 			},
 
 			baseVolumeAttachmentResponse: &models.VolumeAttachment{
-				ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-				Href:       "",
-				Name:       "test volume name",
-				Status:     "stable",
-				Type:       "",
-				InstanceID: new(string),
-				ClusterID:  new(string),
-				Device:     &models.Device{},
-				Volume:     &models.Volume{ID: "volume-id1"},
+				ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+				Name:   "test volume name",
+				Status: "stable",
+				Volume: &models.Volume{ID: "volume-id1"},
 			},
 
 			baseVolumeAttachmentsListResponse: &models.VolumeAttachmentList{
 				VolumeAttachments: []models.VolumeAttachment{{
-					ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-					Href:       "",
-					Name:       "test volume name",
-					Status:     "stable",
-					Type:       "",
-					InstanceID: new(string),
-					ClusterID:  new(string),
-					Device:     &models.Device{},
-					Volume:     &models.Volume{ID: "volume-id1"},
+					ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+					Name:   "test volume name",
+					Status: "stable",
+					Volume: &models.Volume{ID: "volume-id1"},
 				}},
 			},
 
@@ -126,28 +116,18 @@ func TestDetachVolume(t *testing.T) {
 			},
 
 			baseVolumeAttachmentResponse: &models.VolumeAttachment{
-				ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-				Href:       "",
-				Name:       "test volume name",
-				Status:     "detaching",
-				Type:       "",
-				InstanceID: new(string),
-				ClusterID:  new(string),
-				Device:     &models.Device{},
-				Volume:     &models.Volume{ID: "volume-id1"},
+				ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+				Name:   "test volume name",
+				Status: "detaching",
+				Volume: &models.Volume{ID: "volume-id1"},
 			},
 
 			baseVolumeAttachmentsListResponse: &models.VolumeAttachmentList{
 				VolumeAttachments: []models.VolumeAttachment{{
-					ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-					Href:       "",
-					Name:       "test volume name",
-					Status:     "detaching",
-					Type:       "",
-					InstanceID: new(string),
-					ClusterID:  new(string),
-					Device:     &models.Device{},
-					Volume:     &models.Volume{ID: "volume-id1"},
+					ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+					Name:   "test volume name",
+					Status: "detaching",
+					Volume: &models.Volume{ID: "volume-id1"},
 				}},
 			},
 
@@ -168,28 +148,18 @@ func TestDetachVolume(t *testing.T) {
 			},
 
 			baseVolumeAttachmentResponse: &models.VolumeAttachment{
-				ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-				Href:       "",
-				Name:       "test volume name",
-				Status:     "stable",
-				Type:       "",
-				InstanceID: new(string),
-				ClusterID:  new(string),
-				Device:     &models.Device{},
-				Volume:     &models.Volume{ID: "volume-id1"},
+				ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+				Name:   "test volume name",
+				Status: "stable",
+				Volume: &models.Volume{ID: "volume-id1"},
 			},
 
 			baseVolumeAttachmentsListResponse: &models.VolumeAttachmentList{
 				VolumeAttachments: []models.VolumeAttachment{{
-					ID:         "16f293bf-test-4bff-816f-e199c0c65db5",
-					Href:       "",
-					Name:       "test volume name",
-					Status:     "stable",
-					Type:       "",
-					InstanceID: new(string),
-					ClusterID:  new(string),
-					Device:     &models.Device{},
-					Volume:     &models.Volume{ID: "volume-id1"},
+					ID:     "16f293bf-test-4bff-816f-e199c0c65db5",
+					Name:   "test volume name",
+					Status: "stable",
+					Volume: &models.Volume{ID: "volume-id1"},
 				}},
 			},
 
@@ -261,6 +231,7 @@ func TestDetachVolumeForInvalidSession(t *testing.T) {
 	assert.NotNil(t, uc)
 	assert.NotNil(t, sc)
 	assert.Nil(t, err)
+	expectedError := "{Code:InvalidServiceSession, Type:RetrivalFailed, Description:The Service Session was not found due to error while generating IAM token., BackendError:IAM token exchange request failed, RC:500}"
 	volumeAttachRequest := provider.VolumeAttachmentRequest{
 		VolumeID: "vol-1",
 	}
@@ -276,4 +247,5 @@ func TestDetachVolumeForInvalidSession(t *testing.T) {
 	}
 
 	assert.NotNil(t, err)
+	assert.Equal(t, expectedError, err.Error())
 }

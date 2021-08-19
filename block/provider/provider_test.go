@@ -377,7 +377,7 @@ func GetTestOpenInvalidSession(t *testing.T, logger *zap.Logger) (sessn *VPCSess
 
 	sessn = &VPCSession{
 		Logger: logger,
-		SessionError: util.NewError("ErrorUnclassified",
+		SessionError: util.NewError("SessionError",
 			"IAM token exchange request failed", nil),
 	}
 
